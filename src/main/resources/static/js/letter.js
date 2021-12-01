@@ -15,16 +15,18 @@ function send_letter() {
     	    {"toUsername":toUsername,"content":content},
     	    function(data) {
     	        data = $.parseJSON(data);
-    	        // 在提示框中显示返回信息
-    	        $("hintBody").text(data.message);
+    	        console.log(data);
+    	        if (data.code == 0) {
+                    $("hintBody").text("发送成功");
+    	        } else {
+                    // 在提示框中显示返回信息
+                    $("hintBody").text(data.message);
+    	        }
 
                 $("#hintModal").modal("show");
                 setTimeout(function(){
                     $("#hintModal").modal("hide");
-                    // 刷新页面
-                    if(data.code == 0) {
-                        window.location.reload();
-                    }
+                    window.location.reload();
                 }, 2000);
     	    }
     	)

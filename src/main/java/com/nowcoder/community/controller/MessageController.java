@@ -79,6 +79,22 @@ public class MessageController {
         return "/site/letter";
     }
 
+    // 得到集合中未读消息的id
+    private List<Integer> getLetterIds(List<Message> messages) {
+        List<Integer> ids = new ArrayList<>();
+        if (messages != null) {
+            for (Message message : messages) {
+                if (hostHolder.getUser().getId() == message.getToId()) {
+                    if (message.getStatus() == 0) {
+                        ids.add(message.getId());
+                    }
+                }
+            }
+        }
+
+        return ids;
+    }
+
     @RequestMapping(path = "/letter-detail/{conversationId}", method = RequestMethod.GET)
     public String getMessageDetailPage(Model model, @PathVariable("conversationId") String conversationId, Page page) {
         // 分页
@@ -119,6 +135,12 @@ public class MessageController {
         model.addAttribute("cpUser", cpUser);
         model.addAttribute("letterVoList", letterVoList);
 
+        // 设置已读
+        List<Integer> ids = getLetterIds(letters);
+        if(!ids.isEmpty()) {
+            messageService.readMessage(ids);
+        }
+
         return "/site/letter-detail";
     }
 
@@ -133,7 +155,7 @@ public class MessageController {
         User toUser = userService.findUserByName(toUsername);
         System.out.println(toUser);
         if (toUser == null){
-            return CommunityUtil.getJSONString(403, "发送对象不存在！");
+            return CommunityUtil.getJSONString(1, "发送对象不存在！");
         }
 
         Message message = new Message();
