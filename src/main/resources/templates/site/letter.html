@@ -66,7 +66,7 @@
 					<!-- 选项 -->
 					<ul class="nav nav-tabs mb-3">
 						<li class="nav-item">
-							<a class="nav-link position-relative active" href="letter.html">朋友私信<span class="badge badge-danger">3</span></a>
+							<a class="nav-link position-relative active" href="letter.html">朋友私信<span class="badge badge-danger" th:text="${totalUnread}">3</span></a>
 						</li>
 						<li class="nav-item">
 							<a class="nav-link position-relative" href="notice.html">系统通知<span class="badge badge-danger">27</span></a>
@@ -120,7 +120,7 @@
 				<!-- 私信列表 -->
 				<ul class="list-unstyled">
 					<li class="media pb-3 pt-3 mb-3 border-bottom position-relative" th:each="map:${messages}">
-						<span class="badge badge-danger">3</span>
+						<span class="badge badge-danger" th:if="${map.unread!=0}"><i th:text="${map.unread}">3</i></span>
 						<a href="profile.html">
 							<img th:src="${map.cpUser.headerUrl}" class="mr-4 rounded-circle user-header" alt="用户头像" >
 						</a>
@@ -130,9 +130,9 @@
 								<span class="float-right text-muted font-size-12" th:utext="${#dates.format(map.message.createTime, 'yyyy-MM-dd HH:mm:ss')}">2019-04-28 14:13:25</span>
 							</h6>
 							<div>
-								<a href="letter-detail.html" th:utext="${map.message.content}">米粉车, 你来吧!</a>
+								<a th:href="@{/message/letter-detail/{conversationId}(conversationId=${map.message.conversationId})}" th:utext="${map.message.content}">米粉车, 你来吧!</a>
 								<ul class="d-inline font-size-12 float-right">
-									<li class="d-inline ml-2"><a href="#" class="text-primary">共5条会话</a></li>
+									<li class="d-inline ml-2"><a href="#" class="text-primary">共<i th:text="${map.letterCount}">5</i>条会话</a></li>
 								</ul>
 							</div>
 						</div>

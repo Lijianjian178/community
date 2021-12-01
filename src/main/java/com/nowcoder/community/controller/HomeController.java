@@ -4,6 +4,7 @@ import com.nowcoder.community.entity.DiscussPost;
 import com.nowcoder.community.entity.Page;
 import com.nowcoder.community.entity.User;
 import com.nowcoder.community.service.DiscussPostService;
+import com.nowcoder.community.service.MessageService;
 import com.nowcoder.community.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -21,6 +22,9 @@ public class HomeController {
 
     @Autowired
     private DiscussPostService discussPostService;
+
+    @Autowired
+    private MessageService messageService;
 
     @Autowired
     private UserService userService;
@@ -44,6 +48,9 @@ public class HomeController {
             }
         }
         model.addAttribute("discussPosts", discussPosts);
+
+        // 未读私信
+//        model.addAttribute("unreadCount", messageService)
         return "/index";
     }
 }
