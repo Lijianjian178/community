@@ -2,8 +2,10 @@ package com.nowcoder.community.controller;
 
 import com.nowcoder.community.annotation.LoginRequired;
 import com.nowcoder.community.entity.User;
+import com.nowcoder.community.service.FollowService;
 import com.nowcoder.community.service.LikeService;
 import com.nowcoder.community.service.UserService;
+import com.nowcoder.community.util.CommunityConstant;
 import com.nowcoder.community.util.CommunityUtil;
 import com.nowcoder.community.util.HostHolder;
 import org.apache.commons.lang3.StringUtils;
@@ -26,7 +28,7 @@ import java.io.OutputStream;
 
 @Controller
 @RequestMapping("/user")
-public class UserController {
+public class UserController implements CommunityConstant {
 
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
@@ -41,6 +43,9 @@ public class UserController {
 
     @Autowired
     private LikeService likeService;
+
+    @Autowired
+    private FollowService followService;
 
     @Autowired
     private HostHolder hostHolder;
@@ -127,12 +132,29 @@ public class UserController {
         return "redirect:/index";
     }
 
-    @LoginRequired
-    @RequestMapping(value = "/profile", method = RequestMethod.GET)
-    public String getProfilePage(Model model) {
-        User user = hostHolder.getUser();
+    @RequestMapping(value = "/profile/{userId}", method = RequestMethod.GET)
+    public String getProfilePage(Model model, @PathVariable("userId") int userId) {
+        // 打开用户页面
+        User user = userService.findUserById(userId);
         model.addAttribute("user", user);
+
+        // 登录用户
+        User loginUser = hostHolder.getUser();
+        model.addAttribute("loginUser", loginUser);
+
+        // 用户收到点赞数
         model.addAttribute("userLikeCount", likeService.findUserLikeCount(user.getId()));
+
+        // 关注目标数
+        model.addAttribute("followeeCount", followService.getFolloweeCount(userId, ENTITY_TYPE_USER));
+        // 粉丝数
+        model.addAttribute("followerCount", followService.getFollowerCount(ENTITY_TYPE_USER, userId));
+        // 关注状态
+        if (hostHolder.getUser() != null) {
+            model.addAttribute("followStatus", followService.getFollowStatus(loginUser.getId(), userId, ENTITY_TYPE_USER));
+        }
+
         return "/site/profile";
     }
+
 }
