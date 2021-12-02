@@ -32,6 +32,9 @@ public class UserService implements CommunityConstant {
     private MailClient mailClient;
 
     @Autowired
+    private LikeService likeService;
+
+    @Autowired
     private TemplateEngine templateEngine;
 
     @Value("${community.path.domain}")

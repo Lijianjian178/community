@@ -2,6 +2,7 @@ package com.nowcoder.community.controller;
 
 import com.nowcoder.community.annotation.LoginRequired;
 import com.nowcoder.community.entity.User;
+import com.nowcoder.community.service.LikeService;
 import com.nowcoder.community.service.UserService;
 import com.nowcoder.community.util.CommunityUtil;
 import com.nowcoder.community.util.HostHolder;
@@ -37,6 +38,9 @@ public class UserController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private LikeService likeService;
 
     @Autowired
     private HostHolder hostHolder;
@@ -108,6 +112,7 @@ public class UserController {
         }
     }
 
+    @LoginRequired
     @RequestMapping(path = "/updatePassword", method = RequestMethod.POST)
     public String updatePassword(String oldPassword, String newPassword, Model model) {
         User user = hostHolder.getUser();
@@ -120,5 +125,14 @@ public class UserController {
         newPassword = CommunityUtil.md5(newPassword + user.getSalt());
         userService.updatePassword(user.getId(), newPassword);
         return "redirect:/index";
+    }
+
+    @LoginRequired
+    @RequestMapping(value = "/profile", method = RequestMethod.GET)
+    public String getProfilePage(Model model) {
+        User user = hostHolder.getUser();
+        model.addAttribute("user", user);
+        model.addAttribute("userLikeCount", likeService.findUserLikeCount(user.getId()));
+        return "/site/profile";
     }
 }
