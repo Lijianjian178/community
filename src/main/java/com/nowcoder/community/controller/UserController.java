@@ -1,6 +1,7 @@
 package com.nowcoder.community.controller;
 
 import com.nowcoder.community.annotation.LoginRequired;
+import com.nowcoder.community.entity.Page;
 import com.nowcoder.community.entity.User;
 import com.nowcoder.community.service.FollowService;
 import com.nowcoder.community.service.LikeService;
@@ -25,6 +26,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 @Controller
 @RequestMapping("/user")
@@ -132,7 +135,7 @@ public class UserController implements CommunityConstant {
         return "redirect:/index";
     }
 
-    @RequestMapping(value = "/profile/{userId}", method = RequestMethod.GET)
+    @RequestMapping(path = "/profile/{userId}", method = RequestMethod.GET)
     public String getProfilePage(Model model, @PathVariable("userId") int userId) {
         // 打开用户页面
         User user = userService.findUserById(userId);
@@ -157,4 +160,68 @@ public class UserController implements CommunityConstant {
         return "/site/profile";
     }
 
+    @RequestMapping(path = "/{userId}/{entityType}/followee", method = RequestMethod.GET)
+    public String getFollowees(Model model, @PathVariable("userId") int userId, Page page, @PathVariable("entityType") int entityType) {
+        User user = userService.findUserById(userId);
+        if(user == null) {
+            throw new RuntimeException("该用户不存在！");
+        }
+        model.addAttribute("user", user);
+
+        page.setRows((int) followService.getFolloweeCount(userId, entityType));
+        page.setLimit(5);
+        page.setPath("/user/" + userId + "/" + entityType + "/followee");
+
+        List<User> userSet = followService.getFollowees(userId, entityType, page.getOffset(), page.getLimit());
+        List<Map<String, Object>> users = new ArrayList<>();
+        if (userSet != null) {
+            for (User user1 : userSet) {
+                Map<String, Object> map = new HashMap<>();
+                // 关注对象用户
+                map.put("user", user1);
+                // 关注时间
+                String followTime =
+                        new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(followService.getFolloweeTime(userId, entityType, user1.getId()));
+                map.put("followTime", followTime);
+                users.add(map);
+            }
+        }
+
+        model.addAttribute("users", users);
+
+        return "/site/followee";
+    }
+
+    @RequestMapping(path = "/{userId}/{entityType}/follower", method = RequestMethod.GET)
+    public String getFollowers(Model model, @PathVariable("userId") int userId, @PathVariable("entityType") int entityType, Page page) {
+        User user = userService.findUserById(userId);
+        model.addAttribute("user", user);
+
+        User loginUser = hostHolder.getUser();
+        model.addAttribute("loginUser", loginUser);
+
+        page.setRows((int) followService.getFollowerCount(entityType, userId));
+        page.setLimit(5);
+        page.setPath("/user/" + userId + "/" + entityType + "/follower");
+
+        List<User> userList = followService.getFollowers(userId, entityType, page.getOffset(), page.getLimit());
+        List<Map<String, Object>> users = new ArrayList<>();
+        if (userList != null) {
+            for (User user1 : userList) {
+                Map<String, Object> map = new HashMap<>();
+                // 粉丝
+                map.put("user", user1);
+                // 受关注时间
+                String followTime =
+                        new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(followService.getFollowerTime(user1.getId(), entityType, userId));
+                map.put("followTime", followTime);
+                // 关注状态
+                map.put("followStatus", followService.getFollowStatus(userId, user1.getId(), ENTITY_TYPE_USER));
+                users.add(map);
+            }
+        }
+
+        model.addAttribute("users", users);
+        return "/site/follower";
+    }
 }

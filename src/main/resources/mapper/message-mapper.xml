@@ -66,4 +66,5 @@
             #{id}
         </foreach>
     </update>
+
 </mapper>

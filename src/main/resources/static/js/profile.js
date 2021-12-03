@@ -5,8 +5,9 @@ $(function(){
 function follow() {
 	var btn = this;
 	// 获取实体id
-	var entityId = $("input#entityId").val();
+//	var entityId = $("input#entityId").val();
 //    var entityId = document.getElementById("entityId").value;
+    var entityId = $(btn).prev().val();
 	if($(btn).hasClass("btn-info")) {
 		// 关注TA
 	    $.post(
