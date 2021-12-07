@@ -8,6 +8,7 @@ import com.nowcoder.community.service.LikeService;
 import com.nowcoder.community.service.MessageService;
 import com.nowcoder.community.service.UserService;
 import com.nowcoder.community.util.CommunityConstant;
+import com.nowcoder.community.util.HostHolder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -34,6 +35,9 @@ public class HomeController implements CommunityConstant {
     @Autowired
     private LikeService likeService;
 
+    @Autowired
+    private HostHolder hostHolder;
+
     @RequestMapping(path = "/index", method = RequestMethod.GET)
     public String getIndexPage(Model model, Page page){
         // 方法调用之前，SpringMVC会自动实例化Model和Page，并将Page注入Model
@@ -57,8 +61,10 @@ public class HomeController implements CommunityConstant {
         }
         model.addAttribute("discussPosts", discussPosts);
 
-        // 未读私信
-//        model.addAttribute("unreadCount", messageService)
+        // 未读消息
+        int unreadCount = messageService.findUnreadLetterCount(hostHolder.getUser().getId(), null)
+                + messageService.findNoticeUnreadCount(hostHolder.getUser().getId(), null);
+        model.addAttribute("unreadCount", unreadCount);
         return "/index";
     }
 
