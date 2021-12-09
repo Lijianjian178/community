@@ -189,8 +189,8 @@ public class MessageController implements CommunityConstant {
 
         // 查询评论类通知
         Message message = messageService.findLatestNotice(user.getId(), TOPIC_COMMENT);
-        Map<String, Object> messageMap = new HashMap<>();
         if (message != null) {
+            Map<String, Object> messageMap = new HashMap<>();
             messageMap.put("message", message);
 
             String content = HtmlUtils.htmlUnescape(message.getContent());
@@ -206,13 +206,15 @@ public class MessageController implements CommunityConstant {
 
             int unread = messageService.findNoticeUnreadCount(user.getId(), TOPIC_COMMENT);
             messageMap.put("unread", unread);
+
+            model.addAttribute("commentNotice", messageMap);
         }
-        model.addAttribute("commentNotice", messageMap);
 
         // 查询点赞类通知
         message = messageService.findLatestNotice(user.getId(), TOPIC_LIKE);
-        messageMap = new HashMap<>();
         if (message != null) {
+            Map<String, Object> messageMap = new HashMap<>();
+
             messageMap.put("message", message);
 
             String content = HtmlUtils.htmlUnescape(message.getContent());
@@ -228,13 +230,14 @@ public class MessageController implements CommunityConstant {
 
             int unread = messageService.findNoticeUnreadCount(user.getId(), TOPIC_LIKE);
             messageMap.put("unread", unread);
+
+            model.addAttribute("likeNotice", messageMap);
         }
-        model.addAttribute("likeNotice", messageMap);
 
         // 查询关注类通知
         message = messageService.findLatestNotice(user.getId(), TOPIC_FOLLOW);
-        messageMap = new HashMap<>();
         if (message != null) {
+            Map<String, Object> messageMap = new HashMap<>();
             messageMap.put("message", message);
 
             String content = HtmlUtils.htmlUnescape(message.getContent());
@@ -249,8 +252,9 @@ public class MessageController implements CommunityConstant {
 
             int unread = messageService.findNoticeUnreadCount(user.getId(), TOPIC_FOLLOW);
             messageMap.put("unread", unread);
+
+            model.addAttribute("followNotice", messageMap);
         }
-        model.addAttribute("followNotice", messageMap);
 
         int letterTotalUnread = messageService.findUnreadLetterCount(user.getId(), null);
         model.addAttribute("letterTotalUnread", letterTotalUnread);

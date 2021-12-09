@@ -62,9 +62,9 @@ public class HomeController implements CommunityConstant {
         model.addAttribute("discussPosts", discussPosts);
 
         // 未读消息
-        int unreadCount = messageService.findUnreadLetterCount(hostHolder.getUser().getId(), null)
-                + messageService.findNoticeUnreadCount(hostHolder.getUser().getId(), null);
-        model.addAttribute("unreadCount", unreadCount);
+//        int unreadCount = messageService.findUnreadLetterCount(hostHolder.getUser().getId(), null)
+//                + messageService.findNoticeUnreadCount(hostHolder.getUser().getId(), null);
+//        model.addAttribute("unreadCount", unreadCount);
         return "/index";
     }
 
