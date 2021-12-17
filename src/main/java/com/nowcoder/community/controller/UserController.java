@@ -1,8 +1,10 @@
 package com.nowcoder.community.controller;
 
 import com.nowcoder.community.annotation.LoginRequired;
+import com.nowcoder.community.entity.DiscussPost;
 import com.nowcoder.community.entity.Page;
 import com.nowcoder.community.entity.User;
+import com.nowcoder.community.service.DiscussPostService;
 import com.nowcoder.community.service.FollowService;
 import com.nowcoder.community.service.LikeService;
 import com.nowcoder.community.service.UserService;
@@ -52,6 +54,9 @@ public class UserController implements CommunityConstant {
 
     @Autowired
     private HostHolder hostHolder;
+
+    @Autowired
+    private DiscussPostService discussPostService;
 
     @Value("${server.servlet.context-path}")
     private String contextPath;
@@ -223,5 +228,39 @@ public class UserController implements CommunityConstant {
 
         model.addAttribute("users", users);
         return "/site/follower";
+    }
+
+    @RequestMapping(path = "/my-post/{userId}", method = RequestMethod.GET)
+    public String getMyPostPage(Model model, @PathVariable("userId") int userId, Page page) {
+
+        User user = userService.findUserById(userId);
+        if (user == null) {
+            throw new RuntimeException("该用户不存在！");
+        }
+        model.addAttribute("user", user);
+        // 贴子数
+        int count = discussPostService.findDiscussPostRows(userId);
+        model.addAttribute("count", count);
+        // 分页
+        page.setRows(count);
+        page.setPath("/my-post/" + userId);
+        page.setLimit(5);
+        // 帖子列表
+        List<DiscussPost> posts = discussPostService.findDiscussPosts(userId, page.getOffset(), page.getLimit(), 0);
+        List<Map<String, Object>> postVO = new ArrayList<>();
+        if (posts != null) {
+            for (DiscussPost post : posts) {
+                Map<String, Object> map = new HashMap<>();
+                map.put("post", post);
+
+                long likeCount = likeService.findEntityLikeCount(CommunityConstant.ENTITY_TYPE_POST, post.getId());
+                map.put("likeCount", likeCount);
+                postVO.add(map);
+            }
+        }
+
+        model.addAttribute("posts", postVO);
+
+        return "/site/my-post";
     }
 }

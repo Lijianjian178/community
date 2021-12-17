@@ -18,7 +18,7 @@ public class CaffeineTests {
 
     @Test
     public void initDataForTest() {
-        for (int i = 0; i < 9000; i++) {
+        for (int i = 0; i < 9; i++) {
             DiscussPost post = new DiscussPost();
             post.setUserId(111);
             post.setTitle("互联网求职暖春计划");
